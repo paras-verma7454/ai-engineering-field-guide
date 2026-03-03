@@ -85,6 +85,25 @@ Skills demonstrated:
 Complexity: intermediate to advanced. Agents appear in 14.4% of jobs and growing.
 
 
+## Interview-Specific Portfolio Tips
+
+From interviews and hiring manager observations:
+
+- "Most recruiters spend less than two minutes looking at a GitHub repo. They scan for README clarity, and a deployment link." A live demo on Streamlit, Gradio, or Hugging Face Spaces is gold ([InterviewNode](http://www.interviewnode.com/post/ml-engineer-portfolio-projects-that-will-get-you-hired-in-2025))
+- Every project should include evaluation. "A RAG system without an eval harness is an incomplete project." Include golden datasets, metrics, and before/after comparisons ([PromptLayer](https://blog.promptlayer.com/the-agentic-system-design-interview-how-to-evaluate-ai-engineers/))
+- Include a config file so hiring managers can test different parameters. One engineer built a CLI tool for summarizing PDFs with configurable models and chunking strategies - had two competing offers within 72 hours ([Fonzi AI](https://medium.com/fonzi-ai/what-ive-learned-from-sitting-in-on-50-ai-engineer-interviews-c493696453c4))
+- Record a Loom video walking through the design for take-home assignments ([Fonzi AI](https://medium.com/fonzi-ai/what-ive-learned-from-sitting-in-on-50-ai-engineer-interviews-c493696453c4))
+- Open-source contributions as signal. Some companies review contribution history as an alternative to traditional assessments ([Hacker News](https://news.ycombinator.com/item?id=43882116)). An xAI candidate credited Grok-related PRs on GitHub for getting "pushed to the top of the pile" ([Reddit](https://www.reddit.com/r/leetcode/comments/1pjhw1i/xai_ai_engineer_backendinfra_interview_just/))
+
+Project ideas that impress in interviews:
+
+1. Production RAG system with eval - hybrid retrieval, cross-encoder reranking, confidence thresholds, precision@k metrics, cost analysis. Mai Chi Bao achieved 9/10 on an interview designing this with open-source tools, including infrastructure cost breakdown ($2,070/month) and dual-model routing ([Mai Chi Bao](https://dev.to/mrzaizai2k/how-i-aced-my-llm-interview-building-a-rag-chatbot-2p6f))
+2. Multi-agent system with scaling - agents collaborating on research reports or customer support with escalation. Show orchestration, error handling, infinite loop prevention ([System Design Handbook](https://www.systemdesignhandbook.com/guides/agentic-system-design/))
+3. Cost optimization case study - optimization from GPT-4 for everything to smart routing (70% to cheaper models, caching, prompt compression). Document token savings
+4. End-to-end deployed project - Docker, CI/CD, Prometheus/Grafana monitoring, Kubernetes auto-scaling ([Mai Chi Bao](https://dev.to/mrzaizai2k/how-i-aced-my-llm-interview-building-a-rag-chatbot-2p6f))
+5. Fraud detection or recommendation engine - real-time features, feedback loops, model monitoring. Shows classical ML + production engineering ([InterviewNode](http://www.interviewnode.com/post/ml-engineer-portfolio-projects-that-will-get-you-hired-in-2025))
+
+
 ## How to Pick a Project
 
 1. Pick a specific domain (e-commerce, healthcare, finance, real estate)

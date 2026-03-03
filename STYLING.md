@@ -1,8 +1,5 @@
 # Styling Guide
 
-This project documents AI Engineering job market research. The styling is different from the ai-bootcamp curriculum - this is research documentation with data tables and analysis.
-
-
 ## Tables
 
 Use tables sparingly. Only for:

@@ -280,7 +280,7 @@ Return valid objects for nested fields (company_info, responsibilities, skills).
     max_retries = 3
     for attempt in range(max_retries):
         response = zai_client.messages.create(
-            model="glm-4.7",
+            model="glm-5",
             max_tokens=4096,
             system=EXTRACTION_SYSTEM_PROMPT,
             messages=[{"role": "user", "content": user_prompt}],

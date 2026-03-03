@@ -6,8 +6,8 @@ Consolidated from 100+ sources including blog posts, YouTube transcripts, Reddit
 - [Coding](questions/02-coding.md) - coding round formats, DSA problems, ML implementation exercises
 - [Project Deep Dive](questions/03-project-deep-dive.md) - presentation rounds, follow-up probes, what interviewers evaluate
 - [AI System Design](questions/04-ai-system-design.md) - system design for AI applications
-- [Home Assignments](questions/05-home-assignments.md) - 17 take-home assignments and 5 paid work trials analyzed in detail
-- [Behavioral](questions/06-behavioral.md) - values, leadership, problem-solving
+- [Behavioral](questions/05-behavioral.md) - values, leadership, problem-solving
+- [Home Assignments](questions/06-home-assignments.md) - 17 take-home assignments and 5 paid work trials analyzed in detail
 
 
 

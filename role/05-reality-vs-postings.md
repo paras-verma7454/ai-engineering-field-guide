@@ -66,11 +66,6 @@ Real challenges people report:
 - Handling rate limits across multiple API providers
 
 
-## Skills That Get You Hired
-
-See [Skills That Actually Get You Hired](../interview/08-get-hired.md) for the full breakdown: baseline expectations, differentiators, the "top 1%" candidate profile, and portfolio strategy.
-
-
 ## Jobs vs. Reality Gap
 
 | Dimension | Job Postings Say | People Actually Experience |

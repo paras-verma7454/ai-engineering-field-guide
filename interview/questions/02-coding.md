@@ -5,7 +5,7 @@ Coding-specific interview content: problems you code or implement, coding round 
 
 ## Coding Round Formats
 
-Two broad categories emerge from practitioner reports. AI Engineer and Applied Scientist roles often have both as separate rounds. [^deepthi-sudharsan]
+Two broad categories:
 
 - Implementation rounds (45-90 min): live-coding progressive/multi-level problems
 - Algorithm rounds (25-70 min): LeetCode-style problems

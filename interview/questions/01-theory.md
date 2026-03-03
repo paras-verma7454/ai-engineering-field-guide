@@ -4,6 +4,12 @@ Based on candidate reports from Reddit, X, and personal blogs about what they we
 
 This section covers knowledge-based questions: "What is X?", "How does X work?", "Explain Y".
 
+## Format
+
+Typically 45-60 minutes, conversational. The interviewer asks conceptual questions to probe your understanding of AI/ML topics. There is no coding or whiteboard - just a back-and-forth discussion.
+
+Theory questions rarely appear as a standalone round. They're usually woven into other rounds: system design, project deep dives, or dedicated AI/ML technical screens. Some companies have a dedicated "LLM theory" or "AI deep-dive" round, but more commonly these questions surface as follow-ups when you mention a concept and the interviewer wants to see how deep your understanding goes.
+
 
 ## Interview Questions
 

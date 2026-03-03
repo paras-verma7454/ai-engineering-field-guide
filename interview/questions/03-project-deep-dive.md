@@ -6,10 +6,15 @@ It usually covers a past project you actually built, but it can also be a hypoth
 
 Either way, interviewers evaluate the same thing: ownership, architectural judgment, and depth of understanding.
 
-There are two common delivery formats:
+## Format
 
-- Conversational deep dive (more common). A hiring manager or senior engineer starts asking about your experience and progressively goes deeper into one project.
-- Prepared presentation (less common). You're asked in advance to prepare slides about a past project.
+Typically 30-60 minutes. At senior levels, the deep dive can focus exclusively on a single project for a whole hour, blending behavioral and technical interviews as the interviewer probes your architecture, decisions, and reasoning. Treat it as a dialogue, not a monologue. [^fonzi-ai]
+
+
+Types: 
+
+- Conversational deep dive (more common) - a hiring manager or senior engineer progressively goes deeper into one project. Could be a part of the hiring manager interview or the behavioral round. [^igotanoffer-meta]
+- Prepared presentation (less common) - you prepare slides about a past project. At Anthropic, this is a 25-minute presentation followed by 15-20 minutes of follow-up questions. [^prachub-anthropic] [^linkjob-anthropic]
 
 
 ## Questions
@@ -74,35 +79,15 @@ These are the probing questions interviewers ask to test depth of understanding.
 - Honest self-assessment - Can you discuss limitations and what you'd do differently? Engineers who acknowledge gaps still get hired.
 - Depth of understanding - Can you go multiple levels deep when probed? Interviewers want to see you understood the implementation, not just the design doc.
 
-Key signal: the best candidates frame around impact ("reduced response time by 40%"), not technology names ("used LangChain and Pinecone"). [^fonzi-ai] [^exponent-openai] 
+Key signal: the best candidates frame around impact ("reduced response time by 40%"), not technology names ("used LangChain and Pinecone"). [^fonzi-ai] [^exponent-openai]
 
-## Format by Company
+For hiring managers, this is one of the most reliable ways to assess seniority. How someone talks about their work reveals:
 
-Anthropic [^prachub-anthropic] [^linkjob-anthropic]
+- Did they drive decisions or execute tasks given to them?
+- Did they identify problems proactively or wait to be told?
+- Did they influence others or work in isolation?
 
-- Prepared presentation
-- 25-minute presentation followed by 15-20 minutes of discussion
-- Deep dive into a past project with significant impact
-- Interviewers are "very keen on asking follow-up questions" - you need to understand underlying mechanisms and trade-offs, not just surface-level accomplishments
-- Separately, the hiring manager round (1 hour) is a conversational deep dive requiring "a very deep understanding of the implementation details"
-
-Meta [^igotanoffer-meta]
-
-- Conversational
-- Project discussion is part of the behavioral round rather than a standalone presentation
-
-Google DeepMind [^sundeep-teki]
-
-- Conversational
-- 45-minute deep dive into resume by a researcher, pure research-focused - no coding or system design
-- A second 30-minute round involves the manager introducing a project topic and asking open-ended questions about background
-
-General pattern at senior levels [^fonzi-ai]
-
-- The deep dive focuses "exclusively on a single real project for a whole hour"
-- Blends behavioral and technical interviews - as you describe your work, the interviewer probes into your architecture, implementation choices, and reasoning behind decisions
-- Treat it as a dialogue, not a monologue
-
+There is nothing wrong with executing well - but the level of ownership and initiative visible in the narrative determines fit for the seniority level the company is hiring for.
 
 ## How to Prepare
 
@@ -134,11 +119,7 @@ Common mistakes:
 [^hello-interview]: [Hello Interview - OpenAI L5](https://www.hellointerview.com/guides/openai/l5)
 [^igotanoffer]: [igotanoffer - Generative AI System Design Interview](https://igotanoffer.com/en/advice/generative-ai-system-design-interview)
 [^igotanoffer-meta]: [IGotAnOffer - Meta ML Engineer](https://igotanoffer.com/blogs/tech/facebook-machine-learning-engineer-interview)
-[^igotanoffer-openai]: [IGotAnOffer - OpenAI](https://igotanoffer.com/en/advice/openai-interview-questions)
-[^khushal-kumar]: [Medium - Khushal Kumar](https://kaysnotes.medium.com/my-generative-ai-engineer-interview-experience-got-hired-6b3f1affc4e9)
 [^linkjob-anthropic]: [LinkJob - Anthropic Software Engineer Interview](https://www.linkjob.ai/interview-questions/anthropic-software-engineer-interview/)
 [^prachub-anthropic]: [Prachub - Anthropic Behavioral & Leadership](https://prachub.com/companies/anthropic/categories/behavioral-and-leadership)
-[^sundeep-teki]: [Sundeep Teki](https://www.sundeepteki.org/advice/the-ultimate-ai-research-engineer-interview-guide-cracking-openai-anthropic-google-deepmind-top-ai-labs)
-[^yuan-meng]: [Yuan Meng](https://www.yuan-meng.com/posts/mle_interviews_2.0/)
 [^youtube-exponent]: [YouTube - Exponent](https://www.youtube.com/watch?v=Zt-h5BiBWH0)
 [^youtube-upwork]: [YouTube - Upwork AI](https://www.youtube.com/watch?v=upwork-ai)

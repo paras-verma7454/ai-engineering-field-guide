@@ -15,13 +15,8 @@ Data sources used for these documents:
 Sections:
 
 - [Interview Process](01-interview-process.md) - common patterns, step counts, time estimates, AI use in hiring, and key takeaways
-- [Theory Questions](02-theory.md) - LLMs, RAG, agents, ML fundamentals, company-specific questions
-- [Coding Problems](03-coding.md) - coding round formats, DSA problems, ML implementation exercises
-- [Case Study Questions](04-case-study.md) - hypothetical approach questions, methodology discussions
-- [AI System Design](05-ai-system-design.md) - system design for AI applications (work in progress)
-- [Home Assignments](06-home-assignments.md) - 17 take-home assignments and 5 paid work trials analyzed in detail
-- [Behavioral Questions](07-behavioral.md) - values, leadership, problem-solving (work in progress)
-- [Skills That Get You Hired](08-get-hired.md) - baseline expectations, differentiators, and portfolio strategy
-- [After the Interview](09-after-the-interview.md) - handling offers, rejections, and salary negotiation
-- [Interview Trends](10-trends.md) - realistic assessments, AI cheating, AI-proctored rounds, the "no AI tools" irony
+- [Interview Questions](02-questions.md) - theory, coding, case study, system design, home assignments, behavioral
+- [Getting Hired](03-get-hired.md) - what interviewers test, portfolio strategy, preparation, and common mistakes
+- [After the Interview](04-after-the-interview.md) - handling offers, rejections, and salary negotiation
+- [Interview Trends](05-trends.md) - realistic assessments, AI cheating, AI-proctored rounds, the "no AI tools" irony
 
