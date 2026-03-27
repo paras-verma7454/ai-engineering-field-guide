@@ -2,7 +2,7 @@
 
 Data-driven field guide to AI engineering roles, skills, and interviews.
 
-Everything here is based on real data: 1,765 actual job descriptions, real interview experiences, and real stories from practitioners. This is not AI-generated filler dumped into a repo - every insight comes from analyzing actual data and synthesizing patterns from it.
+Everything here is based on real data: 2,445 actual job descriptions, real interview experiences, and real stories from practitioners. This is not AI-generated filler dumped into a repo - every insight comes from analyzing actual data and synthesizing patterns from it.
 
 My vision for this repo is to become **the** go-to resource for AI engineering. Like [data-science-interviews](https://github.com/alexeygrigorev/data-science-interviews) but broader:
 
@@ -60,7 +60,7 @@ Star this repo to keep an eye on updates. To get notified about new content, sub
 
 ## Job Market Data
 
-1,765 job descriptions scraped from builtin.com covering LA, NY, London, Amsterdam, Berlin, and India.
+2,445 job descriptions scraped from builtin.com covering LA, NY, London, Amsterdam, Berlin, and India.
 
 - [Structured job descriptions](job-market/data_structured/) - YAML files with title, company, skills, compensation, and full descriptions
 - [Raw extracted postings](job-market/data_raw/) - original extracted data
@@ -90,7 +90,7 @@ See [awesome.md](awesome.md) for the list.
 A 4-part event series on AI engineering careers, hosted through [Maven](https://maven.com/) and [AI Shipping Labs](https://aishippinglabs.com/):
 
 1. [A Day of an AI Engineer](webinars/01-a-day-of-ai-engineer.md) - the practical reality of the role ([Maven](https://maven.com/p/bf6ef3/a-day-of-ai-engineer), [AI Shipping Labs](https://aishippinglabs.com/blog/what-is-an-ai-engineer-alexey-grigorev-perspective)) - recording available
-2. [Defining the AI Engineer Role](webinars/02-defining-the-role.md) - what companies actually hire for, based on 1,500+ job descriptions ([Maven](https://maven.com/p/f0cada/defining-the-ai-engineer-role)) - recording available
+2. [Defining the AI Engineer Role](webinars/02-defining-the-role.md) - what companies actually hire for, based on 2,400+ job descriptions ([Maven](https://maven.com/p/f0cada/defining-the-ai-engineer-role)) - recording available
 3. [The Interview Process](webinars/03-the-interview-process.md) - real hiring trends, technical questions, and live coding challenges ([Maven](https://maven.com/p/69550a/ai-engineering-the-interview-process)) - March 3, 2026
 4. [Take-Home Assignments](webinars/04-take-home-assignments.md) - analyzing real assignments and building production-ready solutions ([Maven](https://maven.com/p/250595/ai-engineering-take-home-assignments)) - March 9, 2026
 
