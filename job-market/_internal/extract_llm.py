@@ -4,6 +4,8 @@ import os
 import csv
 import yaml
 import json
+import random
+import time
 import textwrap
 from pathlib import Path
 from typing import Literal, Optional, List
@@ -11,7 +13,7 @@ from datetime import datetime
 
 from dotenv import load_dotenv
 from pydantic import BaseModel, Field
-from anthropic import Anthropic
+from anthropic import Anthropic, APIConnectionError, APITimeoutError, InternalServerError, RateLimitError
 
 # Load .env file
 load_dotenv()
@@ -26,7 +28,8 @@ OUTPUT_DIR.mkdir(exist_ok=True)
 # Z.ai client
 zai_client = Anthropic(
     api_key=os.getenv("ZAI_API_KEY"),
-    base_url="https://api.z.ai/api/anthropic"
+    base_url="https://api.z.ai/api/anthropic",
+    max_retries=6,
 )
 
 
@@ -257,6 +260,11 @@ Extract if mentioned:
 
 # ===== EXTRACTION FUNCTION =====
 
+def retry_delay(attempt: int, *, base: float, cap: float) -> float:
+    """Return exponential backoff with small jitter."""
+    return min(cap, base * (2 ** attempt)) + random.uniform(0, 1)
+
+
 def extract_from_job(title: str, company: str, description: str) -> JobExtraction:
     """Extract structured data from a job description using Z.ai."""
 
@@ -277,39 +285,54 @@ Return valid objects for nested fields (company_info, responsibilities, skills).
         "input_schema": JobExtraction.model_json_schema()
     }
 
-    max_retries = 3
-    for attempt in range(max_retries):
-        response = zai_client.messages.create(
-            model="glm-5",
-            max_tokens=4096,
-            system=EXTRACTION_SYSTEM_PROMPT,
-            messages=[{"role": "user", "content": user_prompt}],
-            tools=[structured_output_tool],
-            tool_choice={"type": "tool", "name": structured_output_tool['name']}
-        )
-
-        # Parse the tool output - Z.ai may return nested JSON strings
-        tool_input = response.content[0].input
-        if isinstance(tool_input, dict):
-            # Check if any values are JSON strings that need parsing
-            parsed_input = {}
-            for key, value in tool_input.items():
-                if isinstance(value, str):
-                    try:
-                        parsed_input[key] = json.loads(value)
-                    except:
-                        parsed_input[key] = value
-                else:
-                    parsed_input[key] = value
-            tool_input = parsed_input
-
+    max_attempts = int(os.getenv("ZAI_MAX_EXTRACTION_RETRIES", "8"))
+    for attempt in range(max_attempts):
         try:
+            response = zai_client.messages.create(
+                model="glm-5",
+                max_tokens=4096,
+                system=EXTRACTION_SYSTEM_PROMPT,
+                messages=[{"role": "user", "content": user_prompt}],
+                tools=[structured_output_tool],
+                tool_choice={"type": "tool", "name": structured_output_tool['name']}
+            )
+
+            # Parse the tool output - Z.ai may return nested JSON strings
+            tool_input = response.content[0].input
+            if isinstance(tool_input, dict):
+                # Check if any values are JSON strings that need parsing
+                parsed_input = {}
+                for key, value in tool_input.items():
+                    if isinstance(value, str):
+                        try:
+                            parsed_input[key] = json.loads(value)
+                        except:
+                            parsed_input[key] = value
+                    else:
+                        parsed_input[key] = value
+                tool_input = parsed_input
+
             extraction = JobExtraction.model_validate(tool_input)
             return extraction
-        except Exception as e:
-            print(f"  Validation attempt {attempt + 1} failed: {e}")
-            if attempt == max_retries - 1:
+        except RateLimitError:
+            if attempt == max_attempts - 1:
                 raise
+            wait = retry_delay(attempt, base=10, cap=120)
+            print(f"  Rate limited, retrying in {wait:.1f}s")
+            time.sleep(wait)
+        except (APIConnectionError, APITimeoutError, InternalServerError) as e:
+            if attempt == max_attempts - 1:
+                raise
+            wait = retry_delay(attempt, base=5, cap=60)
+            print(f"  Transient API error ({type(e).__name__}), retrying in {wait:.1f}s")
+            time.sleep(wait)
+        except Exception as e:
+            print(f"  Extraction attempt {attempt + 1} failed: {e}")
+            if attempt == max_attempts - 1:
+                raise
+            wait = retry_delay(attempt, base=3, cap=30)
+            print(f"  Retrying in {wait:.1f}s")
+            time.sleep(wait)
 
     raise Exception("Failed to extract valid output after retries")
 
