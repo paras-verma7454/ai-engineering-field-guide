@@ -1,6 +1,8 @@
 import pandas as pd
 import re
 
+from pipeline_paths import GLOBAL_DEDUP_CSV
+
 # AI-First patterns - roles where building AI models/systems is the core focus
 AI_FIRST_PATTERNS = [
     r'\bAI Engineer\b(?!\s*\(?\w*Software)',  # AI Engineer but not "AI Software Engineer"
@@ -327,7 +329,7 @@ def classify_job(title: str) -> str:
 
 def main():
     # Load the data
-    df = pd.read_csv('jobs/all_jobs_dedup.csv')
+    df = pd.read_csv(GLOBAL_DEDUP_CSV)
 
     # Apply classification
     df['classification'] = df['title'].apply(classify_job)

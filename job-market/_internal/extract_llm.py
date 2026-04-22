@@ -21,9 +21,21 @@ load_dotenv()
 # Directories
 SCRIPT_DIR = Path(__file__).parent
 REPO_ROOT = SCRIPT_DIR.parent  # job-market/
-EXTRACTED_DIR = REPO_ROOT / "data_raw"
-OUTPUT_DIR = REPO_ROOT / "data_structured"
-OUTPUT_DIR.mkdir(exist_ok=True)
+from pipeline_paths import (
+    RAW_YAML_DIR,
+    STRUCTURED_YAML_DIR,
+    dated_output_path,
+    find_scraped_date,
+    infer_job_id_from_filename,
+    iter_files,
+    job_date_lookup,
+    load_csv_rows,
+    resolve_csv_path,
+    resolve_nested_file,
+)
+
+EXTRACTED_DIR = RAW_YAML_DIR
+OUTPUT_DIR = STRUCTURED_YAML_DIR
 
 # Z.ai client
 zai_client = Anthropic(
@@ -337,11 +349,15 @@ Return valid objects for nested fields (company_info, responsibilities, skills).
     raise Exception("Failed to extract valid output after retries")
 
 
-def extract_job(yaml_file: Path) -> tuple[str | None, dict | None]:
+def extract_job(
+    yaml_file: Path,
+    *,
+    date_lookup: dict[str, str] | None = None,
+) -> tuple[Path | None, dict | None]:
     """Extract structured data from a job YAML file.
 
     Returns:
-        tuple: (output_filename, structured_data_dict)
+        tuple: (output_path, structured_data_dict)
     """
     with open(yaml_file, 'r', encoding='utf-8') as f:
         job = yaml.safe_load(f)
@@ -362,6 +378,11 @@ def extract_job(yaml_file: Path) -> tuple[str | None, dict | None]:
         traceback.print_exc()
         return None, None
 
+    scraped_date = find_scraped_date(job_id, path=yaml_file, date_lookup=date_lookup)
+    if not scraped_date:
+        print(f"  Error: could not determine scraped_date for {yaml_file.name}")
+        return None, None
+
     # Transform to structured output
     structured = to_structured(
         job_id=job_id,
@@ -371,13 +392,12 @@ def extract_job(yaml_file: Path) -> tuple[str | None, dict | None]:
         extracted_at=datetime.now().isoformat()
     )
 
-    # Generate output filename
-    output_filename = yaml_file.name  # same name, different directory
+    output_path = dated_output_path(OUTPUT_DIR, scraped_date, yaml_file.name)
 
     print(f"  AI Type: {extraction.ai_type}")
     print(f"  Skills: {len(extraction.skills)}")
 
-    return output_filename, structured.model_dump()
+    return output_path, structured.model_dump()
 
 
 def load_csv_ids(csv_path):
@@ -407,34 +427,33 @@ def main():
 
     # Load CSV filter if provided
     csv_ids = None
+    csv_dates = None
     if args.csv:
-        csv_path = Path(args.csv)
-        if not csv_path.is_absolute():
-            csv_path = SCRIPT_DIR / args.csv
-        csv_ids = load_csv_ids(csv_path)
+        csv_path = resolve_csv_path(args.csv, relative_to=SCRIPT_DIR)
+        csv_rows = load_csv_rows(csv_path)
+        csv_ids = {row["id"] for row in csv_rows if row.get("id")}
+        csv_dates = job_date_lookup(csv_rows)
         print(f"Filtering to {len(csv_ids)} job IDs from {csv_path.name}")
 
     if args.yaml_file:
         # Process single file
-        yaml_file = Path(args.yaml_file)
+        yaml_file = resolve_nested_file(EXTRACTED_DIR, args.yaml_file)
         if not yaml_file.exists():
             print(f"File not found: {yaml_file}")
             return
 
-        output_filename, output = extract_job(yaml_file)
+        output_file, output = extract_job(yaml_file, date_lookup=csv_dates)
         if output:
-            output_file = OUTPUT_DIR / output_filename
             write_yaml_with_wrapping(output, output_file)
 
             print(f"\nSaved: {output_file}")
 
     elif args.all:
         # Process all files (optionally filtered by CSV)
-        yaml_files = list(EXTRACTED_DIR.glob("*.yaml"))
+        yaml_files = iter_files(EXTRACTED_DIR, "*.yaml")
 
         if csv_ids is not None:
-            # Filter YAML files: filename format {job_id}_{company}_{title}.yaml
-            yaml_files = [f for f in yaml_files if f.stem.split("_")[0] in csv_ids]
+            yaml_files = [f for f in yaml_files if infer_job_id_from_filename(f) in csv_ids]
 
         if args.limit:
             yaml_files = yaml_files[:args.limit]
@@ -446,8 +465,14 @@ def main():
         skipped = 0
 
         for i, yaml_file in enumerate(yaml_files, 1):
-            output_filename = yaml_file.name
-            output_file = OUTPUT_DIR / output_filename
+            job_id = infer_job_id_from_filename(yaml_file)
+            scraped_date = find_scraped_date(job_id, path=yaml_file, date_lookup=csv_dates)
+            if not scraped_date:
+                errors.append((yaml_file.name, "missing scraped_date"))
+                print(f"[{i}/{len(yaml_files)}] {yaml_file.name[:50]}... ERROR: missing scraped_date")
+                continue
+
+            output_file = dated_output_path(OUTPUT_DIR, scraped_date, yaml_file.name)
 
             # Skip if already processed
             if output_file.exists():
@@ -455,13 +480,13 @@ def main():
                 continue
 
             try:
-                output_filename, output = extract_job(yaml_file)
+                output_file, output = extract_job(yaml_file, date_lookup=csv_dates)
                 if output:
                     write_yaml_with_wrapping(output, output_file)
 
                     results[output['position']['ai_type']['type']] += 1
 
-                    print(f"[{i}/{len(yaml_files)}] {yaml_file.name[:50]}... -> {output['position']['ai_type']['type']}")
+                    print(f"[{i}/{len(yaml_files)}] {scraped_date}/{yaml_file.name[:50]}... -> {output['position']['ai_type']['type']}")
             except Exception as e:
                 errors.append((yaml_file.name, str(e)))
                 print(f"[{i}/{len(yaml_files)}] {yaml_file.name[:50]}... ERROR: {e}")

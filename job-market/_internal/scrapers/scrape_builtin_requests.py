@@ -32,8 +32,10 @@ OXYLABS_PASSWORD = os.getenv("OXYLABS_PASSWORD")
 
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent  # _internal/
-JSON_DIR = PROJECT_ROOT / "jobs" / "builtin"
-JSON_DIR.mkdir(parents=True, exist_ok=True)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from pipeline_paths import BUILTIN_JSON_DIR, combined_csv_path
 
 BUILTIN_SITES = {
     "la": {
@@ -274,7 +276,7 @@ def main():
 
         # Save per-site JSON (date-stamped)
         if site_jobs:
-            json_file = JSON_DIR / f"{site_id}_{date_stamp}.json"
+            json_file = BUILTIN_JSON_DIR / f"{site_id}_{date_stamp}.json"
             with open(json_file, "w", encoding="utf-8") as f:
                 json.dump(site_jobs, f, indent=2, ensure_ascii=False)
             print(f"\n  Saved {len(site_jobs)} jobs -> {json_file.name}")
@@ -283,13 +285,13 @@ def main():
 
     # Combine into CSV
     if all_jobs:
-        csv_file = PROJECT_ROOT / f"all_jobs_{date_stamp}.csv"
+        csv_file = combined_csv_path(scraped_date)
         with open(csv_file, "w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=CSV_FIELDS)
             writer.writeheader()
             for job in all_jobs:
                 writer.writerow({field: job.get(field, "") for field in CSV_FIELDS})
-        print(f"\nCombined CSV: {csv_file.name} ({len(all_jobs)} jobs)")
+        print(f"\nCombined CSV: {csv_file} ({len(all_jobs)} jobs)")
 
     print(f"\n{'='*60}")
     print(f"COMPLETE - {len(all_jobs)} total jobs across {len(sites)} sites")

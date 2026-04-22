@@ -6,10 +6,10 @@ For analysis and insights based on this data, see [role/](../role/).
 
 ## Contents
 
-- [data_structured/](data_structured/) - structured YAML files with title, company, skills, compensation, and full descriptions
-- [data_raw/](data_raw/) - raw extracted YAML files from job postings
+- [data_structured/](data_structured/) - structured YAML files grouped into `YYYY-MM-DD/` scrape-date folders
+- [data_raw/](data_raw/) - raw extracted YAML files grouped into `YYYY-MM-DD/` scrape-date folders
 - [analysis.ipynb](analysis.ipynb) - Jupyter notebook with data analysis
-- [_internal/](_internal/) - scraping scripts, processing scripts, CSVs
+- [_internal/](_internal/) - scraping scripts, processing scripts, and `_internal/data/` for pipeline CSVs
 
 ## Highlights
 
@@ -27,7 +27,7 @@ Top skills:
 
 ## Data Format
 
-Each YAML file in `data_structured/` contains:
+Each YAML file in `data_structured/YYYY-MM-DD/` contains:
 
 ```yaml
 title: Senior AI/Data Engineer

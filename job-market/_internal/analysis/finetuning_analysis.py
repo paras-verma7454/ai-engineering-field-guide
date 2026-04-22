@@ -1,22 +1,8 @@
 #!/usr/bin/env python3
 """Analyze fine-tuning requirements and use cases."""
-import yaml
-from pathlib import Path
 from collections import Counter, defaultdict
 
-STRUCTURED_DIR = Path(__file__).parent.parent / "structured"
-
-
-def load_all_jobs():
-    """Load all structured job files."""
-    jobs = []
-    for file in STRUCTURED_DIR.glob("*.yaml"):
-        try:
-            with open(file, 'r', encoding='utf-8') as f:
-                jobs.append(yaml.safe_load(f))
-        except Exception as e:
-            print(f"Error loading {file}: {e}")
-    return jobs
+from common import load_structured_jobs as load_all_jobs
 
 
 def analyze_finetuning(jobs):

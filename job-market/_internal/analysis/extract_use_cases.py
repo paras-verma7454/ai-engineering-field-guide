@@ -1,23 +1,11 @@
 #!/usr/bin/env python3
 """Extract all use cases from structured job data to a file."""
-import yaml
 from pathlib import Path
 from collections import Counter, defaultdict
 
-STRUCTURED_DIR = Path(__file__).parent.parent / "structured"
+from common import load_structured_jobs as load_all_jobs
+
 OUTPUT_FILE = Path(__file__).parent.parent / "all_use_cases.txt"
-
-
-def load_all_jobs():
-    """Load all structured job files."""
-    jobs = []
-    for file in STRUCTURED_DIR.glob("*.yaml"):
-        try:
-            with open(file, 'r', encoding='utf-8') as f:
-                jobs.append(yaml.safe_load(f))
-        except Exception as e:
-            print(f"Error loading {file}: {e}")
-    return jobs
 
 
 def extract_all_use_cases(jobs):

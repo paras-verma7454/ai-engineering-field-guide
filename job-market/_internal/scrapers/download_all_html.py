@@ -8,6 +8,7 @@ import os
 import time
 import csv
 import random
+import sys
 from pathlib import Path
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import threading
@@ -26,12 +27,25 @@ OXYLABS_PASSWORD = os.getenv("OXYLABS_PASSWORD")
 # Paths
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
-RAW_DIR = PROJECT_ROOT / "jobs" / "raw"
-RAW_DIR.mkdir(parents=True, exist_ok=True)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from pipeline_paths import (
+    GLOBAL_DEDUP_CSV,
+    RAW_HTML_DIR,
+    dated_output_path,
+    find_scraped_date,
+    infer_job_id_from_filename,
+    iter_files,
+    load_csv_rows,
+    resolve_csv_path,
+)
+
+RAW_DIR = RAW_HTML_DIR
 FAILED_FILE = PROJECT_ROOT / "jobs" / "queue" / "failed_urls.txt"
 
 # Thread-safe set for tracking existing job IDs
-existing_files = {f.stem.split('_')[-1] for f in RAW_DIR.glob("*.html")}
+existing_files = {infer_job_id_from_filename(path) for path in iter_files(RAW_DIR, "*.html")}
 existing_lock = threading.Lock()
 
 
@@ -76,11 +90,17 @@ def get_job_id(url):
     return parsed.path.split('/')[-1] if parsed.path.split('/')[-1] else 'unknown'
 
 
-def process_url(idx, url, total):
+def process_url(idx, row, total):
     """Process a single URL - fetch and save HTML."""
     global success_count, skipped_count, failed_count
 
+    url = row["link"]
     job_id = get_job_id(url)
+    scraped_date = (row.get("scraped_date") or "").strip() or find_scraped_date(job_id)
+    if not scraped_date:
+        failed_count += 1
+        print(f"  [{idx}/{total}] Missing scraped_date for {job_id}")
+        return False, f"{url}|missing scraped_date"
 
     # Check if already downloaded
     with existing_lock:
@@ -94,7 +114,7 @@ def process_url(idx, url, total):
 
     with counter_lock:
         if html:
-            filename = save_html(url, html)
+            filename = save_html(url, html, scraped_date)
             with existing_lock:
                 existing_files.add(job_id)
             success_count += 1
@@ -106,7 +126,7 @@ def process_url(idx, url, total):
             return False, f"{url}|{error}"
 
 
-def save_html(url, html):
+def save_html(url, html, scraped_date):
     """Save HTML to file."""
     from urllib.parse import urlparse
     from bs4 import BeautifulSoup
@@ -131,7 +151,7 @@ def save_html(url, html):
     # No timestamp - just {title}_{job_id}.html
     filename = f"{title}_{job_id}.html"
 
-    output_file = RAW_DIR / filename
+    output_file = dated_output_path(RAW_DIR, scraped_date, filename)
     with open(output_file, 'w', encoding='utf-8') as f:
         f.write(html)
 
@@ -141,7 +161,7 @@ def save_html(url, html):
 def main():
     import argparse
     parser = argparse.ArgumentParser(description='Download job HTMLs with 8 threads')
-    parser.add_argument('--csv', type=str, help='Path to CSV file with job links (default: jobs/all_jobs_dedup.csv)')
+    parser.add_argument('--csv', type=str, help='Path to CSV file with job links (default: data/all_jobs_dedup.csv)')
     parser.add_argument('--limit', type=int, help='Limit number of URLs to download (for testing)')
     args = parser.parse_args()
 
@@ -154,28 +174,24 @@ def main():
 
     # Read URLs from CSV
     if args.csv:
-        csv_file = Path(args.csv)
-        if not csv_file.is_absolute():
-            csv_file = PROJECT_ROOT / args.csv
+        csv_file = resolve_csv_path(args.csv, relative_to=PROJECT_ROOT)
     else:
-        csv_file = PROJECT_ROOT / "all_jobs_dedup.csv"
+        csv_file = GLOBAL_DEDUP_CSV
     if not csv_file.exists():
         print(f"ERROR: {csv_file} not found!")
         return
 
-    with open(csv_file, 'r', encoding='utf-8') as f:
-        reader = csv.DictReader(f)
-        urls = [row['link'] for row in reader if row.get('link')]
+    rows = [row for row in load_csv_rows(csv_file) if row.get("link")]
 
     if args.limit:
-        urls = urls[:args.limit]
+        rows = rows[:args.limit]
         print(f"\nTEST MODE: Limited to {args.limit} URLs")
 
-    print(f"\nFound {len(urls)} URLs in deduplicated CSV")
+    print(f"\nFound {len(rows)} URLs in {csv_file}")
     print(f"Already downloaded: {len(existing_files)}")
     print(f"Threads: 8")
     print(f"Retries per URL: 3")
-    print(f"Output: {RAW_DIR}")
+    print(f"Output root: {RAW_DIR}")
     print(f"\nStarting download...\n")
 
     failed_urls = []
@@ -183,8 +199,8 @@ def main():
     # Process with 8 threads
     with ThreadPoolExecutor(max_workers=8) as executor:
         futures = {
-            executor.submit(process_url, i, url, len(urls)): (i, url)
-            for i, url in enumerate(urls, 1)
+            executor.submit(process_url, i, row, len(rows)): (i, row["link"])
+            for i, row in enumerate(rows, 1)
         }
 
         for future in as_completed(futures):

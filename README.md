@@ -62,8 +62,8 @@ Star this repo to keep an eye on updates. To get notified about new content, sub
 
 2,445 job descriptions scraped from builtin.com covering LA, NY, London, Amsterdam, Berlin, and India.
 
-- [Structured job descriptions](job-market/data_structured/) - YAML files with title, company, skills, compensation, and full descriptions
-- [Raw extracted postings](job-market/data_raw/) - original extracted data
+- [Structured job descriptions](job-market/data_structured/) - YAML files grouped by scrape date
+- [Raw extracted postings](job-market/data_raw/) - original extracted data grouped by scrape date
 
 
 ## [Awesome AI Engineering](awesome.md)

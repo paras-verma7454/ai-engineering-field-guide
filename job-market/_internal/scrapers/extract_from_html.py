@@ -4,6 +4,7 @@ import csv
 import json
 import re
 import html
+import sys
 import yaml
 from pathlib import Path
 from bs4 import BeautifulSoup
@@ -12,9 +13,24 @@ from bs4 import BeautifulSoup
 SCRIPT_DIR = Path(__file__).parent
 PROJECT_ROOT = SCRIPT_DIR.parent
 REPO_ROOT = PROJECT_ROOT.parent  # job-market/
-RAW_DIR = PROJECT_ROOT / "jobs" / "raw"
-OUTPUT_DIR = REPO_ROOT / "data_raw"
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.insert(0, str(PROJECT_ROOT))
+
+from pipeline_paths import (
+    RAW_HTML_DIR,
+    RAW_YAML_DIR,
+    dated_output_path,
+    find_scraped_date,
+    infer_job_id_from_filename,
+    iter_files,
+    job_date_lookup,
+    load_csv_rows,
+    resolve_csv_path,
+    resolve_nested_file,
+)
+
+RAW_DIR = RAW_HTML_DIR
+OUTPUT_DIR = RAW_YAML_DIR
 
 
 def extract_from_json_ld(html_content):
@@ -423,16 +439,17 @@ def main():
 
     # Load CSV filter if provided
     csv_ids = None
+    csv_dates = None
     if args.csv:
-        csv_path = Path(args.csv)
-        if not csv_path.is_absolute():
-            csv_path = PROJECT_ROOT / args.csv
-        csv_ids = load_csv_ids(csv_path)
+        csv_path = resolve_csv_path(args.csv, relative_to=PROJECT_ROOT)
+        csv_rows = load_csv_rows(csv_path)
+        csv_ids = {row["id"] for row in csv_rows if row.get("id")}
+        csv_dates = job_date_lookup(csv_rows)
         print(f"Filtering to {len(csv_ids)} job IDs from {csv_path.name}")
 
     if args.html_file:
         # Process single file
-        html_file = Path(args.html_file)
+        html_file = resolve_nested_file(RAW_DIR, args.html_file)
         if not html_file.exists():
             print(f"File not found: {html_file}")
             return
@@ -441,9 +458,13 @@ def main():
 
         # Generate filename
         job_id = job.get('job_id', 'unknown')
+        scraped_date = find_scraped_date(job_id, path=html_file, date_lookup=csv_dates)
+        if not scraped_date:
+            print(f"Could not determine scraped_date for {html_file}")
+            return
         company = sanitize_filename(job['company'])
         title_slug = sanitize_filename(job['title'][:50])
-        yaml_file = OUTPUT_DIR / f"{job_id}_{company}_{title_slug}.yaml"
+        yaml_file = dated_output_path(OUTPUT_DIR, scraped_date, f"{job_id}_{company}_{title_slug}.yaml")
 
         # Write YAML (skips empty fields)
         write_yaml_file(job, yaml_file)
@@ -456,27 +477,29 @@ def main():
 
     elif args.all:
         # Process all files (optionally filtered by CSV)
-        html_files = list(RAW_DIR.glob("*.html"))
+        html_files = iter_files(RAW_DIR, "*.html")
 
         if csv_ids is not None:
-            # Filter HTML files to only those whose job ID is in the CSV
-            # HTML filename format: {title}_{job_id}.html
-            html_files = [f for f in html_files if f.stem.split("_")[-1] in csv_ids]
+            html_files = [f for f in html_files if infer_job_id_from_filename(f) in csv_ids]
 
         print(f"Processing {len(html_files)} HTML files...\n")
 
-        for html_file in html_files:
+        for index, html_file in enumerate(html_files, 1):
             job = extract_job_data(html_file)
 
             job_id = job.get('job_id', 'unknown')
+            scraped_date = find_scraped_date(job_id, path=html_file, date_lookup=csv_dates)
+            if not scraped_date:
+                print(f"[{index}/{len(html_files)}] {html_file.name[:50]}... missing scraped_date")
+                continue
             company = sanitize_filename(job['company']) if job['company'] else 'Unknown'
             title_slug = sanitize_filename(job['title'][:50])
-            yaml_file = OUTPUT_DIR / f"{job_id}_{company}_{title_slug}.yaml"
+            yaml_file = dated_output_path(OUTPUT_DIR, scraped_date, f"{job_id}_{company}_{title_slug}.yaml")
 
             # Write YAML (skips empty fields)
             write_yaml_file(job, yaml_file)
 
-            print(f"[{html_files.index(html_file)+1}/{len(html_files)}] {yaml_file.name}")
+            print(f"[{index}/{len(html_files)}] {scraped_date}/{yaml_file.name}")
     else:
         parser.print_help()
 

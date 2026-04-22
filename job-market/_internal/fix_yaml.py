@@ -3,7 +3,9 @@
 import re
 from pathlib import Path
 
-EXTRACTED_DIR = Path(__file__).parent / "extracted"
+from pipeline_paths import RAW_YAML_DIR, iter_files
+
+EXTRACTED_DIR = RAW_YAML_DIR
 
 
 def fix_yaml_file(yaml_file):
@@ -97,7 +99,7 @@ def main():
         parser.print_help()
         return
 
-    yaml_files = list(EXTRACTED_DIR.glob("*.yaml"))
+    yaml_files = iter_files(EXTRACTED_DIR, "*.yaml")
     print(f"Fixing {len(yaml_files)} YAML files...\n")
 
     fixed = 0

@@ -12,7 +12,7 @@ This document describes the process for extracting comprehensive skills and clas
 
 ## Data Structure
 
-Input files: `jobs/extracted/*.yaml`
+Input files: `data_raw/{YYYY-MM-DD}/*.yaml`
 
 ```yaml
 job_id: 8064361
